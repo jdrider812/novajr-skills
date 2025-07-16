@@ -1,17 +1,19 @@
-import sys
-import os
-import urllib.request
+import requests
+from pathlib import Path
 
-def run(*args):
-    if not args:
-        return "Usage: download_file <url> [<destination_folder>]"
-    url = args[0]
-    folder = args[1] if len(args) > 1 else "downloads"
-    os.makedirs(folder, exist_ok=True)
-    filename = url.split("/")[-1].split("?")[0] or "downloaded_file"
-    dest = os.path.join(folder, filename)
+def run(command: str) -> str:
+    parts = command.split()
+    if len(parts) != 2:
+        return "Usage: download_file <url>"
+
+    url = parts[1]
+    filename = url.split("/")[-1]
+    save_path = Path("skills") / filename
+
     try:
-        urllib.request.urlretrieve(url, dest)
-        return f"✅ Downloaded: {url}\n→ Saved as: {dest}"
+        response = requests.get(url)
+        response.raise_for_status()
+        save_path.write_bytes(response.content)
+        return f"Downloaded {filename} to skills/"
     except Exception as e:
-        return f"❌ Download failed: {e}"
+        return f"Failed to download: {e}"
