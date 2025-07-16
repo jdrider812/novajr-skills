@@ -1,0 +1,1 @@
+result = f"My home is: {HOME}"
